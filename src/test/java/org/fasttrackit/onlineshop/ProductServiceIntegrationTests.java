@@ -53,6 +53,32 @@ public class ProductServiceIntegrationTests {
 	public void testGetProduct_whenNonExistingProduct_thenThrowResourceNotFoundException(){
 		productService.getProduct(0);
 	}
+
+	@Test
+	public void testUpdateProduct_whenValidRequest_thenUpdateProduct(){
+		Product createdProduct = createProduct();
+		SaveProductRequest saveProductRequest = new SaveProductRequest();
+		saveProductRequest.setName(createdProduct.getName() + " updated");
+		saveProductRequest.setDescription(createdProduct.getDescription() + " updated");
+		saveProductRequest.setPrice(createdProduct.getPrice() + 10);
+		saveProductRequest.setQuantity(createdProduct.getQuantity() + 10);
+		Product updateProduct = productService.updateProduct(saveProductRequest,createdProduct.getId());
+		assertThat(updateProduct, notNullValue());
+		assertThat(updateProduct.getName(),is(saveProductRequest.getName()));
+		assertThat(updateProduct.getDescription(),is(saveProductRequest.getDescription()));
+		assertThat(updateProduct.getPrice(),is(saveProductRequest.getPrice()));
+		assertThat(updateProduct.getQuantity(),is(saveProductRequest.getQuantity()));
+	}
+	@Test(expected = ResourceNotFoundException.class)
+	public void testUpdateProduct_whenNonExistingProduct_thenThrowResourceNotFoundException(){
+		SaveProductRequest saveProductRequest = new SaveProductRequest();
+		saveProductRequest.setName(" updated");
+		saveProductRequest.setDescription(" updated");
+		saveProductRequest.setPrice(10D);
+		saveProductRequest.setQuantity(10);
+		productService.updateProduct(saveProductRequest,0);
+	}
+
 	private Product createProduct() {
 		SaveProductRequest request = new SaveProductRequest();
 		request.setName("Banana " + System.currentTimeMillis());
@@ -70,5 +96,6 @@ public class ProductServiceIntegrationTests {
 		assertThat(createdProduct.getQuantity(),is(request.getQuantity()));
 		return createdProduct;
 	}
+
 
 }

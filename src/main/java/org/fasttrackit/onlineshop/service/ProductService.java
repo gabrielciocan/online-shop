@@ -6,6 +6,7 @@ import org.fasttrackit.onlineshop.persistance.ProductRepository;
 import org.fasttrackit.onlineshop.transfer.SaveProductRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,4 +41,17 @@ public class ProductService {
                         "Product " + id + " does not exist"));
 
     }
+    public Product updateProduct(SaveProductRequest productRequest, long id){
+        LOGGER.info("Updating product {}: {}", id,productRequest);
+
+        Product product = getProduct(id);
+        BeanUtils.copyProperties(productRequest,product);
+        return productRepository.save(product);
+    }
+    public void deleteProduct(long id){
+        LOGGER.info("Deleting product {}",id);
+        productRepository.deleteById(id);
+        LOGGER.info("Deleted product {}",id);
+    }
+
 }
