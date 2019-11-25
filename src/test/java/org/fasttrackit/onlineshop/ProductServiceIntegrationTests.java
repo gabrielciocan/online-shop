@@ -1,6 +1,7 @@
 package org.fasttrackit.onlineshop;
 
 import org.fasttrackit.onlineshop.domain.Product;
+import org.fasttrackit.onlineshop.exception.ResourceNotFoundException;
 import org.fasttrackit.onlineshop.service.ProductService;
 import org.fasttrackit.onlineshop.transfer.SaveProductRequest;
 import org.junit.Test;
@@ -23,6 +24,36 @@ public class ProductServiceIntegrationTests {
 	private ProductService productService;
 	@Test
 	public void testCreateProduct_whenValidRequest_thenProductIsSaved() {
+		createProduct();
+	}
+
+
+
+	@Test(expected = TransactionSystemException.class)
+	public void testCreateProduct_whenInvalidRequest_thenThrowTransactionSystemException(){
+		SaveProductRequest request = new SaveProductRequest();
+
+		Product createdProduct = productService.createProduct(request);
+
+
+	}
+	@Test
+	public void testGetProduct_whenExistingProduct_thenProductIsReturned(){
+		Product createdProduct = createProduct();
+		Product retrievedProduct = productService.getProduct(createdProduct.getId());
+
+		assertThat(retrievedProduct, notNullValue());
+		assertThat(retrievedProduct.getId(), is(createdProduct.getId()));
+		assertThat(retrievedProduct.getName(),is(createdProduct.getName()));
+		assertThat(retrievedProduct.getDescription(),is(createdProduct.getDescription()));
+		assertThat(retrievedProduct.getPrice(),is(createdProduct.getPrice()));
+		assertThat(retrievedProduct.getQuantity(),is(createdProduct.getQuantity()));
+	}
+	@Test(expected = ResourceNotFoundException.class)
+	public void testGetProduct_whenNonExistingProduct_thenThrowResourceNotFoundException(){
+		productService.getProduct(0);
+	}
+	private Product createProduct() {
 		SaveProductRequest request = new SaveProductRequest();
 		request.setName("Banana " + System.currentTimeMillis());
 		request.setPrice(5.0);
@@ -37,14 +68,7 @@ public class ProductServiceIntegrationTests {
 		assertThat(createdProduct.getDescription(),is(request.getDescription()));
 		assertThat(createdProduct.getPrice(),is(request.getPrice()));
 		assertThat(createdProduct.getQuantity(),is(request.getQuantity()));
-	}
-	@Test(expected = TransactionSystemException.class)
-	public void testCreateProduct_whenInvalidRequest_thenThrowException(){
-		SaveProductRequest request = new SaveProductRequest();
-
-		Product createdProduct = productService.createProduct(request);
-
-
+		return createdProduct;
 	}
 
 }
