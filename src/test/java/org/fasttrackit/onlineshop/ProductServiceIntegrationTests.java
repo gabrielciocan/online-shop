@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.TransactionSystemException;
 
@@ -77,6 +78,24 @@ public class ProductServiceIntegrationTests {
 		saveProductRequest.setPrice(10D);
 		saveProductRequest.setQuantity(10);
 		productService.updateProduct(saveProductRequest,0);
+	}
+	@Test
+	public void testDeleteProduct_whenValidId_thenDeleteProduct(){
+		Product createdProduct = createProduct();
+		productService.deleteProduct(createdProduct.getId());
+		boolean found;
+		try{
+			productService.getProduct(createdProduct.getId());
+			found = true;
+		}
+		catch (ResourceNotFoundException e){
+			found = false;
+		}
+		assertThat(found,is(false));
+	}
+	@Test(expected = EmptyResultDataAccessException.class)
+	public void testDeleteProduct_whenInvalidId_thenThrowResourceNotFoundException(){
+		productService.deleteProduct(0);
 	}
 
 	private Product createProduct() {
