@@ -79,23 +79,11 @@ public class ProductServiceIntegrationTests {
 		saveProductRequest.setQuantity(10);
 		productService.updateProduct(saveProductRequest,0);
 	}
-	@Test
-	public void testDeleteProduct_whenValidId_thenDeleteProduct(){
+	@Test(expected = ResourceNotFoundException.class)
+	public void testDeleteProduct_whenExistingProduct_thenProductIsDeleted(){
 		Product createdProduct = createProduct();
 		productService.deleteProduct(createdProduct.getId());
-		boolean found;
-		try{
-			productService.getProduct(createdProduct.getId());
-			found = true;
-		}
-		catch (ResourceNotFoundException e){
-			found = false;
-		}
-		assertThat(found,is(false));
-	}
-	@Test(expected = EmptyResultDataAccessException.class)
-	public void testDeleteProduct_whenInvalidId_thenThrowResourceNotFoundException(){
-		productService.deleteProduct(0);
+		productService.getProduct(createdProduct.getId());
 	}
 
 	private Product createProduct() {
